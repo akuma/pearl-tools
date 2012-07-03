@@ -7,7 +7,7 @@
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Manages VirtualBox VMs
-# Description:       This script manages VMs offered by the VirtualBox
+# Description:       This script is base on http://www.kernelhardware.org/virtualbox-auto-start-vm-centos-fedora-redhat/.
 ### END INIT INFO
 
 # Source function library.
