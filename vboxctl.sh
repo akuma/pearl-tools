@@ -1,13 +1,14 @@
 #!/bin/sh 
 
 ### BEGIN INIT INFO
-# Provides:          Guomi
-# Required-Start:    $remote_fs $syslog $local_fs $network $named
-# Required-Stop:     $remote_fs $syslog $local_fs $network $named
+# Provides:          vboxctl
+# Required-Start:    $remote_fs $syslog $local_fs $network $vboxdrv
+# Required-Stop:     $remote_fs $syslog $local_fs $network $vboxdrv
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Manages VirtualBox VMs
-# Description:       This script is base on http://www.kernelhardware.org/virtualbox-auto-start-vm-centos-fedora-redhat/.
+# Description:       This script is base on
+#                    http://www.kernelhardware.org/virtualbox-auto-start-vm-centos-fedora-redhat/.
 ### END INIT INFO
 
 # Source function library.
@@ -23,7 +24,7 @@ VBOXDIR="/etc/vbox"
 VM_USER="vbox"
 USE_NAT="no"
 
-export PATH="${PATH:+$PATH:}/bin:/usr/bin:/usr/sbin:/sbin"
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
 
 if [ -f $VBOXDIR/config ]; then
     . $VBOXDIR/config
