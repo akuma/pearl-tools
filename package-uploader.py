@@ -71,13 +71,11 @@ def upload_package(package_dir, package_regex):
         ftp_mkds(ftp, remote_path)
 
         try:
+            print "\t%s => %s" % (pkg, remote_path)
             pkg_file = os.path.join(package_dir, pkg)
             openFile = open(pkg_file, 'rb')
 
-            #ftp.cwd(remote_path)
-
-            print "\t%s => %s" % (pkg, remote_path)
-
+            ftp.cwd(remote_path)
             ftp.storbinary('STOR ' + pkg, openFile, 8196)
         finally:
             if openFile:
