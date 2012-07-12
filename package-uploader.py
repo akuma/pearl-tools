@@ -129,4 +129,4 @@ elif len(sys.argv) != 3:
     print '''%s: too few arguments
 Try `%s --help' for more information. ''' % (sys.argv[0], sys.argv[0])
 else:
-    upload_package(sys.argv[1], sys.argv[2])"
+    upload_package(sys.argv[1], sys.argv[2])
