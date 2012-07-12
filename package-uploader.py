@@ -36,7 +36,7 @@ def upload_package(package_dir, package_regex):
     latest_package = matched_packages[-1]
 
     package_infos = latest_package.split('-')
-    package_classifier = package_infos[3]
+    package_classifier = package_infos[:-4]
     package_name = package_infos[0]
     package_major_version = package_infos[1][:3]
     remote_path = os.path.join(__ftp_dir__, package_classifier, package_name, package_major_version)
@@ -91,4 +91,4 @@ elif len(sys.argv) != 3:
 Try `%s --help' for more information. ''' % (sys.argv[0], sys.argv[0])
 else:
     upload_package(sys.argv[1], sys.argv[2])
-`"'"
+
