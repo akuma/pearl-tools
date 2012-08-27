@@ -47,10 +47,21 @@ def upload_package(package_dir, package_regex):
 
     print "\nUploading all matched packages to ftp[%s]:\n" % __ftp_host__
     for pkg in matched_pkgs:
-        # package name is like this: demo-1.1.0-r16859-release.war, demo-1.1.0-r16859-release-sql.zip
+        # package name is like this:
+        #   demo-1.1.0-r16859-release.war, demo-1.1.0-r16859-release-sql.zip
+        #   demo-sub-1.0.0-r16565-release.war, demo-sub-1.0.0-r16565-release.war
         pkg_infos = pkg.split('-')
-        pkg_fullname = pkg_infos[0]
+        m = re.search('^\d\.\d$', pkg_infos[1], re.I)
+        if m is None:
+            pkg_fullname = pkg_infos[0] + '-' + pkg_infos[1]
+            pkg_version = pkg_infos[2]
+            pkg_cls_suffix = pkg_infos[4]
+        else:
+            pkg_fullname = pkg_infos[0]
+            pkg_version = pkg_infos[1]
+            pkg_cls_suffix = pkg_infos[3]
 
+        # pkg_fullname example: demo, demo-sub
         pkg_type_index = pkg_fullname.find('_')
         if pkg_type_index == -1:
             pkg_name = pkg_fullname
@@ -58,15 +69,16 @@ def upload_package(package_dir, package_regex):
             pkg_name = pkg_fullname[:pkg_type_index]
             pkg_type = pkg_fullname[pkg_type_index]
 
-        # tmp_val example: release, release.war, release.zip
-        tmp_val = pkg_infos[3]
-        dot_index = tmp_val.find('.')
-        if dot_index == -1:
-            pkg_classifier = tmp_val
-        else:
-            pkg_classifier = tmp_val[:dot_index]
+        # major version example: 1.1
+        pkg_major_version = pkg_version[:3]
 
-        pkg_major_version = pkg_infos[1][:3]
+        # pkg_cls_suffix example: release, release.war, release.zip
+        dot_index = pkg_cls_suffix.find('.')
+        if dot_index == -1:
+            pkg_classifier = pkg_cls_suffix
+        else:
+            pkg_classifier = pkg_cls_suffix[:dot_index]
+
         remote_path = os.path.join(__ftp_dir__, pkg_classifier, pkg_name, pkg_major_version)
         ftp_mkds(ftp, remote_path)
 
