@@ -51,7 +51,7 @@ def upload_package(package_dir, package_regex):
         #   demo-1.1.0-r16859-release.war, demo-1.1.0-r16859-release-sql.zip
         #   demo-sub-1.0.0-r16565-release.war, demo-sub-1.0.0-r16565-release.war
         pkg_infos = pkg.split('-')
-        m = re.search('^\d\.\d$', pkg_infos[1], re.I)
+        m = re.search('(\d\.)+', pkg_infos[1])
         if m is None:
             pkg_fullname = pkg_infos[0] + '-' + pkg_infos[1]
             pkg_version = pkg_infos[2]
