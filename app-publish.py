@@ -132,10 +132,11 @@ def git_publish(app_dir, pkg_name):
     pkg_full_path = os.path.join(working_dir, app_dir, pkg_name)
     print "Copying %s/* -> %s..." % (pkg_full_path, app_deploy_dir)
     os.system("cp %s/* -rp %s" % (pkg_full_path, app_deploy_dir))
-    #os.chdir(app_deploy_dir)
     os.system("git add .")
     os.system("git commit -m 'Deployment publish commit.'")
     os.system("git push origin %s" % app_fullname)
+    # Go back to master branch
+    os.system("git checkout master")
     # reset working dir
     os.chdir(working_dir)
 
