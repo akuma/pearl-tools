@@ -70,6 +70,7 @@ def publish_apps(app_dir, app_regex):
 
 def extract_app_info(package_name):
     """ Extract app info from app's package/dir name. """
+
     # package name is like this:
     #   demo-1.1.0-r16859-release.war, demo-1.1.0-r16859-release-sql.zip
     #   demo-sub-1.0.0-r16565-release.war, demo-sub-1.0.0-r16565-release-sql.zip
@@ -79,10 +80,12 @@ def extract_app_info(package_name):
     if m is None:
         app_fullname = app_info[0] + '-' + app_info[1]
         app_version = app_info[2]
+        app_revision = app_info[3]
         app_cls_suffix = app_info[4]
     else:
         app_fullname = app_info[0]
         app_version = app_info[1]
+        app_revision = app_info[2]
         app_cls_suffix = app_info[3]
 
     # app_fullname example: demo, demo-sub
@@ -104,7 +107,7 @@ def extract_app_info(package_name):
 
     app_info_dict = {"app_name": app_name, "app_fullname": app_fullname,
                     "app_major_version": app_major_version, "app_version": app_version,
-                    "app_classifier": app_classifier}
+		    "app_revision": app_revision, "app_classifier": app_classifier}
     return app_info_dict 
 
 
@@ -148,12 +151,16 @@ def ftp_publish(app_dir, pkg_name, ftp):
     ftp_mkds(ftp, remote_path)
 
     try:
-        print "\t%s => %s" % (pkg_name, remote_path)
         pkg_file = os.path.join(app_dir, pkg_name)
         openFile = open(pkg_file, 'rb')
 
+        # Make package long name less shorter
+        app_revision = app_info["app_revision"]
+	pkg_short_name = pkg_name.replace(app_revision, app_revision[:7])
+
         ftp.cwd(remote_path)
-        ftp.storbinary('STOR ' + pkg, openFile, 8196)
+        ftp.storbinary('STOR ' + pkg_short_name, openFile, 8196)
+        print "\t%s => %s/%s" % (pkg_name, remote_path, pkg_short_name)
     finally:
         if openFile:
             openFile.close()
@@ -189,7 +196,7 @@ if sys.argv[1].startswith('--'):
         sys.exit()
     elif option == 'help':
         print '''Usage: %s app_dir app_regex
-        Publish app packages to products repos(ftp, git, etc).
+Publish app packages to products repos(ftp, git, etc).
 
 Options include:
         --version        Prints the version number
