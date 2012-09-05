@@ -19,35 +19,6 @@ __ftp_dir__ = "/products"
 # app publish dir
 __app_publish_dir__ = "/opt/scm/app_publish"
 
-# Script starts from here
-if len(sys.argv) < 2:
-    print '''%s: too few arguments
-Try `%s --help' for more information.''' % (sys.argv[0], sys.argv[0])
-    sys.exit()
-
-if sys.argv[1].startswith('--'):
-    option = sys.argv[1][2:]
-    # Fetch sys.argv[1] but without the first two characters
-    if option == 'version':
-        print '%s %s' % (sys.argv[0], __version__)
-        sys.exit()
-    elif option == 'help':
-        print '''Usage: %s app_dir app_regex
-        Publish app packages to products repos(ftp, git, etc).
-
-Options include:
-        --version        Prints the version number
-        --help           Display this help''' % sys.argv[0]
-    else:
-        print '''%s: invalid option -- %s
-        Try `%s --help' for more information.''' % (sys.argv[0], option, sys.argv[0])
-        sys.exit()
-elif len(sys.argv) != 3:
-    print '''%s: too few arguments
-    Try `%s --help' for more information. ''' % (sys.argv[0], sys.argv[0])
-else:
-    publish_apps(sys.argv[1], sys.argv[2])
-
 
 def publish_apps(app_dir, app_regex):
     """ Publish matched app packages to the products repos. """
@@ -90,6 +61,7 @@ def publish_apps(app_dir, app_regex):
         ftp.quit()
         ftp.close()
 
+    print "\nPublish all matched packages to git repos:\n"
     for pkg_name in matched_dirs:
         git_publish(app_dir, pkg_name)
 
@@ -119,7 +91,6 @@ def extract_app_info(package_name):
         app_name = app_fullname
     else:
         app_name = app_fullname[:app_type_index]
-        app_type = app_fullname[app_type_index]
 
     # major version example: 1.1
     app_major_version = app_version[:3]
@@ -131,9 +102,9 @@ def extract_app_info(package_name):
     else:
         app_classifier = app_cls_suffix[:dot_index]
 
-    app_info_dict = {"app_name": app_name, "app_fullname": app_fullname, "app_type": app_type,
-                    "app_classifier": app_classifier, "app_major_version": app_major_version,
-                    "app_version": app_version}
+    app_info_dict = {"app_name": app_name, "app_fullname": app_fullname,
+                    "app_major_version": app_major_version, "app_version": app_version,
+                    "app_classifier": app_classifier}
     return app_info_dict 
 
 
@@ -147,7 +118,7 @@ def git_publish(app_dir, pkg_name):
     if not os.path.exists(app_deploy_dir):
         print "Package will not be published to git repos because there is no repos '%s'." % app_deploy_dir
         #sys.exit()
-        continue
+        return
 
     working_dir = os.getcwd()
     print "Changing dir %s -> %s..." % (working_dir, app_deploy_dir)
@@ -202,4 +173,34 @@ def ftp_mkds(ftp, path):
             except ftplib.error_perm:
                 print "\nERROR: User '%s' has no permission to make dir %s" % (__ftp_user__, p)
                 break
+
+
+# Script starts from here
+if len(sys.argv) < 2:
+    print '''%s: too few arguments
+Try `%s --help' for more information.''' % (sys.argv[0], sys.argv[0])
+    sys.exit()
+
+if sys.argv[1].startswith('--'):
+    option = sys.argv[1][2:]
+    # Fetch sys.argv[1] but without the first two characters
+    if option == 'version':
+        print '%s %s' % (sys.argv[0], __version__)
+        sys.exit()
+    elif option == 'help':
+        print '''Usage: %s app_dir app_regex
+        Publish app packages to products repos(ftp, git, etc).
+
+Options include:
+        --version        Prints the version number
+        --help           Display this help''' % sys.argv[0]
+    else:
+        print '''%s: invalid option -- %s
+        Try `%s --help' for more information.''' % (sys.argv[0], option, sys.argv[0])
+        sys.exit()
+elif len(sys.argv) != 3:
+    print '''%s: too few arguments
+    Try `%s --help' for more information. ''' % (sys.argv[0], sys.argv[0])
+else:
+    publish_apps(sys.argv[1], sys.argv[2])
 
