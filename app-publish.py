@@ -42,11 +42,11 @@ Options include:
         print '''%s: invalid option -- %s
         Try `%s --help' for more information.''' % (sys.argv[0], option, sys.argv[0])
         sys.exit()
-    elif len(sys.argv) != 3:
-        print '''%s: too few arguments
-        Try `%s --help' for more information. ''' % (sys.argv[0], sys.argv[0])
-    else:
-        publish_apps(sys.argv[1], sys.argv[2])
+elif len(sys.argv) != 3:
+    print '''%s: too few arguments
+    Try `%s --help' for more information. ''' % (sys.argv[0], sys.argv[0])
+else:
+    publish_apps(sys.argv[1], sys.argv[2])
 
 
 def publish_apps(app_dir, app_regex):
