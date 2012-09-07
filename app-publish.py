@@ -8,7 +8,7 @@ import re
 import os
 import ftplib
 
-__version__ = "0.1"
+__version__ = "0.1.1"
 
 # ftp params
 __ftp_host__ = "ftp.gm.com"
@@ -42,7 +42,7 @@ def publish_apps(app_dir, app_regex):
     matched_dirs.sort()
 
     if not matched_pkgs and not matched_dirs:
-        print "Can't find any app packages with regex '%s'." % app_regex
+        print "Can1;2c't find any app packages with regex '%s'." % app_regex
         sys.exit()
 
     is_ftp_usable = True
@@ -107,8 +107,8 @@ def extract_app_info(package_name):
 
     app_info_dict = {"app_name": app_name, "app_fullname": app_fullname,
                     "app_major_version": app_major_version, "app_version": app_version,
-		    "app_revision": app_revision, "app_classifier": app_classifier}
-    return app_info_dict 
+                     "app_revision": app_revision, "app_classifier": app_classifier}
+    return app_info_dict
 
 
 def git_publish(app_dir, pkg_name):
@@ -127,11 +127,12 @@ def git_publish(app_dir, pkg_name):
     print "Changing dir %s -> %s..." % (working_dir, app_deploy_dir)
     os.chdir(app_deploy_dir)
     # Checkout git branch
-    os.system("git checkout -B %s" % app_fullname)
+    os.system("git checkout %s" % app_fullname)
     # Update package files of git repos
     pkg_full_path = os.path.join(working_dir, app_dir, pkg_name)
     print "Copying %s/* -> %s..." % (pkg_full_path, app_deploy_dir)
-    os.system("cp %s/* -rp %s" % (pkg_full_path, app_deploy_dir))
+    os.system("cp %s/* -rp ." % pkg_full_path)
+    os.system("find . -type f -iname '*.java' -exec rm -rf {} \;")
     os.system("git add .")
     os.system("git commit -m 'Deployment publish commit.'")
     os.system("git push origin %s" % app_fullname)
@@ -157,7 +158,7 @@ def ftp_publish(app_dir, pkg_name, ftp):
 
         # Make package long name less shorter
         app_revision = app_info["app_revision"]
-	pkg_short_name = pkg_name.replace(app_revision, app_revision[:7])
+        pkg_short_name = pkg_name.replace(app_revision, app_revision[:7])
 
         ftp.cwd(remote_path)
         ftp.storbinary('STOR ' + pkg_short_name, openFile, 8196)
@@ -211,4 +212,3 @@ elif len(sys.argv) != 3:
     Try `%s --help' for more information. ''' % (sys.argv[0], sys.argv[0])
 else:
     publish_apps(sys.argv[1], sys.argv[2])
-

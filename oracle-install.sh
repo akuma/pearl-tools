@@ -2,8 +2,8 @@
 ## Shell script for install oracle
 
 export ORACLE_APP=/opt/oracle/app
-export ORACLE_DATA=/opt/oracle/data
-export ORACLE_HOME=$ORACLE_APP/product/10.2.0
+export ORACLE_DATA=/opt/oracle/oradata
+export ORACLE_HOME=$ORACLE_APP/product/11.2.0/db_1
 
 ORACLE_PASSWD="abc#123"
 SYSDBA_PASSWD="abc#123"
@@ -38,10 +38,9 @@ set_env() {
     rm -rf /etc/oratab
     cp /etc/sysctl.conf /etc/sysctl.conf.bak
     cp /etc/security/limits.conf /etc/security/limits.conf.bak
-    cp /etc/pam.d/login /etc/pam.d/login.bak
+    #cp /etc/pam.d/login /etc/pam.d/login.bak
     cp /etc/selinux/config /etc/selinux/config.bak
     cp /etc/redhat-release /etc/redhat-release.bak
-    cp /proc/sys/vm/hugetlb_shm_group /proc/sys/vm/hugetlb_shm_group.bak
 
     ## 安装依赖的包
     for PACKAGE in lftp binutils compat-gcc-* compat-gcc-*-c++ compat-libstdc++-*  \
@@ -70,7 +69,7 @@ set_env() {
     ## 配置 Linux 内核参数
     cat >> /etc/sysctl.conf <<EOF
 # use for oracle
-fs.file-max = 65536
+fs.file-max = 6815744
 #kernel.shmall = 2097152
 #kernel.shmmax = 2147483648
 #kernel.shmmni = 4096
@@ -89,28 +88,10 @@ EOF
     ## 为 oracle 用户设置 Shell
     cat >> /etc/security/limits.conf <<EOF
 # use for oracle
-oracle soft nproc 2047
+oracle soft nproc 16384
 oracle hard nproc 16384
-oracle soft nofile 1024
+oracle soft nofile 10240
 oracle hard nofile 65536
-EOF
-
-    cat >> /etc/pam.d/login <<EOF
-session required /lib64/security/pam_limits.so
-session required pam_limits.so
-EOF
-
-    touch /etc/profile.d/oracle.sh
-    chmod +x /etc/profile.d/oracle.sh
-    cat >> /etc/profile.d/oracle.sh <<EOF
-if [ \$USER = "oracle" ]; then
-    if [ \$SHELL = "/bin/ksh" ]; then
-        ulimit -p 16384
-        ulimit -n 65536
-    else
-        ulimit -u 16384 -n 65536
-    fi
-fi
 EOF
 
     ## 关闭SELIINUX
