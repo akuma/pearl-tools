@@ -2,36 +2,69 @@
 #
 # tomcatctl    Script for control tomcat.
 #
-# chkconfig: 2345 99 99
+# chkconfig: 345 99 99
 # description: tomcatctl is a script for control tomcat.
+
+# Change this to tomcat user
+OPERATOR=dev
+
+# Change this to real tomcat dir
+TOMCATS=( /opt/tomcat/tomcat-foo /opt/tomcat/tomcat-bar )
+
+#TM_REGEX=""
+#for TM in ${TOMCATS[@]}
+#do
+#    TM_REGEX="$TM_REGEX$TM\|"
+#done
+#if [ $TM_REGEX != "" ] ; then
+    #TM_REGEX=""
+#fi
+
+# Shell return value
+RETVAL=0
 
 start()
 {
-    rm -rf $CATALINA_HOME/webapps/ROOT
-    rm -rf $CATALINA_HOME/vhost_*/webapps/ROOT
-    rm -rf $CATALINA_HOME/work/*
-    cd $CATALINA_HOME/bin
-    sh catalina.sh start &
-    echo "tomcat startup."
+    for TM in ${TOMCATS[@]}
+    do
+        su - $OPERATOR -c "cd $TM; rm -rf work/*; bin/startup.sh"
+        echo "$TM startup."
+    done
+
+    if [ "$TOMCATS" = "" ] ; then
+        echo "There is no tomcat configed."
+    else
+        echo "All tomcats startup."
+    fi
 }
 
 stop()
 {
-    pid=`ps -ef|grep "java"|grep "$CATALINA_HOME"|awk '{print $2}'`
-    if [ "$pid" = "" ] ; then
-	echo "No tomcat alive."
-    else
-	sh $CATALINA_HOME/bin/shutdown.sh
-	echo "Wait for a moment please..."
-	sleep 5 
+    PIDS=( `jps -l |grep catalina |awk '{print $1}'` )
+    for PID in ${PIDS[@]}
+    do
+       echo "Shutdown tomcat[$PID]..."
+       kill $PID
+    done
 
-	pid=`ps -ef|grep "java"|grep "$CATALINA_HOME"|awk '{print $2}'`
-	if [ "$pid" = "" ] ; then
-	    echo "No tomcat alive."
-	else
-	    kill $pid
-	    echo "tomcat[$pid] shutdown."
-	fi
+    if [ "$PIDS" = "" ] ; then
+        echo "There is no tomcat running."
+    else
+        echo "Waiting for tomcats shutdown..."
+        sleep 5
+    fi
+
+    PIDS=( `jps -l |grep catalina |awk '{print $1}'` )
+
+    if [ "$PIDS" = "" ] ; then
+        echo "All tomcats shutdown normally."
+    else
+        for PID in ${PIDS[@]}
+        do
+            echo "kill -9 tomcat[$PID]..."
+            kill -9 $PID
+        done
+        echo "All tomcats is killed."
     fi
 }
 
@@ -41,6 +74,11 @@ restart()
     start
 }
 
+status()
+{
+    jps -ml |grep catalina
+}
+
 help()
 {
     echo "Usage: $0 [OPTION]"
@@ -48,29 +86,27 @@ help()
     echo "  start        start tomcat"
     echo "  stop         stop tomcat"
     echo "  restart      restart tomcat"
-    echo "  log          tail the catalina log"
+    echo "  status       show started tomcat pid"
     echo "  help         display this help and exit"
     echo ""
 }
 
-RETVAL=0
-
 case "$1" in
     start)
-	start
-	;;
+        start
+        ;;
     stop)
-	stop
-	;;
+        stop
+        ;;
     restart)
-	restart
-	;;
-    log)
-        tail -f $CATALINA_HOME/logs/catalina.out
+        restart
+        ;;
+    status)
+        status
         ;;
     *)
-	help
-	RETVAL=1
+        help
+        RETVAL=1
 esac
 
 exit $RETVAL
