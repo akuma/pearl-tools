@@ -162,7 +162,7 @@ def ftp_publish(app_dir, pkg_name, ftp):
 
         ftp.cwd(remote_path)
         ftp.storbinary('STOR ' + pkg_short_name, openFile, 8196)
-        print "\t%s => %s/%s" % (pkg_name, remote_path, pkg_short_name)
+        print "  %s => %s/%s" % (pkg_name, remote_path, pkg_short_name)
     finally:
         if openFile:
             openFile.close()
