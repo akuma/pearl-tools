@@ -120,14 +120,13 @@ def git_publish(app_dir, pkg_name):
     app_deploy_dir = __app_publish_dir__ + "/" + app_name + "-deploy"
     if not os.path.exists(app_deploy_dir):
         print "Package will not be published to git repos because there is no repos '%s'." % app_deploy_dir
-        #sys.exit()
         return
 
     working_dir = os.getcwd()
     print "Changing dir %s -> %s..." % (working_dir, app_deploy_dir)
     os.chdir(app_deploy_dir)
-    # Checkout git branch
-    os.system("git checkout %s" % app_fullname)
+    ## Checkout git branch
+    #os.system("git checkout %s" % app_fullname)
     # Update package files of git repos
     pkg_full_path = os.path.join(working_dir, app_dir, pkg_name)
     print "Copying %s/* -> %s..." % (pkg_full_path, app_deploy_dir)
@@ -135,9 +134,10 @@ def git_publish(app_dir, pkg_name):
     os.system("find . -type f -iname '*.java' -exec rm -rf {} \;")
     os.system("git add .")
     os.system("git commit -m 'Deployment publish commit.'")
-    os.system("git push origin %s" % app_fullname)
-    # Go back to master branch
-    os.system("git checkout master")
+    os.system("git push origin master")
+    #os.system("git push origin %s" % app_fullname)
+    ## Go back to master branch
+    #os.system("git checkout master")
     # reset working dir
     os.chdir(working_dir)
 
