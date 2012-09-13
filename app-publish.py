@@ -17,7 +17,7 @@ __ftp_pass__ = ""
 __ftp_dir__ = "/products"
 
 # app publish dir
-__app_publish_dir__ = "/opt/scm/app_publish"
+__app_publish_dir__ = "/opt/scm/app-publish"
 
 
 def publish_apps(app_dir, app_regex):
