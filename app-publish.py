@@ -120,12 +120,12 @@ def git_publish(app_dir, pkg_name):
     app_fullname = app_info["app_fullname"]
     app_deploy_dir = __app_publish_dir__ + "/" + app_name + "-deploy"
     if not os.path.exists(app_deploy_dir):
-        print "Package will not be published to git repos because there is no repos '%s'." % app_deploy_dir
+        print "  Ignore package %s which has no repos '%s'." % (pkg_name, app_deploy_dir)
         return
 
     app_classifier = app_info["app_classifier"]
     if app_classifier == "test":
-        print "Ignore test package '%s'." % pkg_name
+        print "  Ignore test package %s." % pkg_name
         return
 
     working_dir = os.getcwd()
