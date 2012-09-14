@@ -125,7 +125,7 @@ def git_publish(app_dir, pkg_name):
 
     app_classifier = app_info["app_classifier"]
     if app_classifier == "test":
-        print "Package will not be published to git repos because '%s' is used for test." % app_deploy_dir
+        print "Ignore test package '%s'." % pkg_name
         return
 
     working_dir = os.getcwd()
