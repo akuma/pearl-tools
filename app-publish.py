@@ -116,16 +116,16 @@ def git_publish(app_dir, pkg_name):
 
     app_info = extract_app_info(pkg_name)
 
-    app_classifier = app_info["app_classifier"]
-    if app_classifier == "test":
-        print "Package will not be published to git repos because '%s' is used for test." % app_deploy_dir
-        return 
-
     app_name = app_info["app_name"]
     app_fullname = app_info["app_fullname"]
     app_deploy_dir = __app_publish_dir__ + "/" + app_name + "-deploy"
     if not os.path.exists(app_deploy_dir):
         print "Package will not be published to git repos because there is no repos '%s'." % app_deploy_dir
+        return
+
+    app_classifier = app_info["app_classifier"]
+    if app_classifier == "test":
+        print "Package will not be published to git repos because '%s' is used for test." % app_deploy_dir
         return
 
     working_dir = os.getcwd()
