@@ -42,7 +42,7 @@ def publish_apps(app_dir, app_regex):
     matched_dirs.sort()
 
     if not matched_pkgs and not matched_dirs:
-        print "Can1;2c't find any app packages with regex '%s'." % app_regex
+        print "Can't find any app packages with regex '%s'." % app_regex
         sys.exit()
 
     is_ftp_usable = True
@@ -115,6 +115,12 @@ def git_publish(app_dir, pkg_name):
     """ Publish app packages to git repos. """
 
     app_info = extract_app_info(pkg_name)
+    app_classifier = app_info["app_classifier"]
+    if (app_classifer.find("test") != -1) {
+        print "Package will not be published to git repos because '%s' is used for test." % app_deploy_dir
+       return 
+    }
+
     app_name = app_info["app_name"]
     app_fullname = app_info["app_fullname"]
     app_deploy_dir = __app_publish_dir__ + "/" + app_name + "-deploy"
