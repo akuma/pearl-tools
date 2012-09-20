@@ -225,7 +225,7 @@ def git_publish(pkg_name, pkg_dir, app_info)
 
   # Git commit and push
   `git add .`
-  `git commit -m 'Deployment publish commit.'`
+  `git commit -am 'Deployment publish commit.'`
   `git push origin master`
 
   # Go back to working dir
