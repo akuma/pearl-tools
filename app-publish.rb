@@ -220,6 +220,9 @@ def git_publish(pkg_name, pkg_dir, app_info)
   puts "  Copying #{pkg_full_path}/* -> #{app_deploy_dir}..."
   `cp -rp #{pkg_full_path}/* .`
 
+  # Delete files which are not used for deployment
+  Dir.glob("**/*.java").each { |x| File.delete(x) }
+
   # Git commit and push
   `git add .`
   `git commit -m 'Deployment publish commit.'`
