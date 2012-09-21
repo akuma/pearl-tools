@@ -1,6 +1,6 @@
-#!/usr/bin/env ruby
-# A ruby script for publishing app packages to deployment repos (ftp, git, etc).
+#!/usr/bin/env ruby -w
 # -*- coding: utf-8 -*-
+# A ruby script for publishing app packages to deployment repos (ftp, git, etc).
 
 require 'net/ftp'
 require 'optparse'
@@ -149,7 +149,7 @@ def extract_app_info(pkg_name)
   dot_index = app_cls_suffix.index('.')
   app_classifier = dot_index ? app_cls_suffix[0...dot_index] : app_cls_suffix
 
-  app_info_dict = {app_name: app_name,
+  {app_name: app_name,
     app_fullname: app_fullname,
     app_major_version: app_major_version,
     app_version: app_version,
