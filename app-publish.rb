@@ -19,7 +19,7 @@ APP_PUBLISH_DIR = '/opt/scm/app-publish'
 #APP_PUBLISH_DIR = '/Users/akuma/Programs/misc/app-test/git-publish'
 
 # Valid classifiers
-CLASSIFIERS = %w[test release beta alpha]
+CLASSIFIERS = %w(test release beta alpha)
 
 # Program name
 EXECUTOR_NAME = File.basename($PROGRAM_NAME)
@@ -30,21 +30,21 @@ option_parser = OptionParser.new do |opts|
   opts.banner = "Publish app packages to deployment repos (ftp, git, etc).
 Usage: #{EXECUTOR_NAME} [options] pkg_dir"
 
-  opts.separator ""
-  opts.separator "Common options:"
+  opts.separator ''
+  opts.separator 'Common options:'
 
-  opts.on("-n",
-          "--name pkg_regex",
-          "The package files, regex supports") do |pkg_regex|
+  opts.on('-n',
+          '--name pkg_regex',
+          'The package files, regex supports') do |pkg_regex|
     options[:pkg_regex] = pkg_regex
   end
 
-  opts.on_tail("-h", "--help", "Show this message") do
+  opts.on_tail('-h', '--help', 'Show this message') do
     puts opts
     exit 0
   end
 
-  opts.on_tail("-v", "--version", "Show version") do
+  opts.on_tail('-v', '--version', 'Show version') do
     puts "app-publisher #{VERSION.join('.')}"
     exit 0
   end
@@ -62,7 +62,7 @@ def publish_apps(pkg_dir, pkg_regex = '.+\-.+\-.+\-.+')
 
   Dir.foreach(pkg_dir) do |x|
     next unless /#{pkg_regex}/i.match(x)
-    Dir.exist?(pkg_dir + "/" + x) ? matched_dirs << x : matched_pkgs << x
+    Dir.exist?("#{pkg_dir}/#{x}") ? matched_dirs << x : matched_pkgs << x
   end
 
   matched_pkgs.sort
@@ -76,7 +76,7 @@ def publish_apps(pkg_dir, pkg_regex = '.+\-.+\-.+\-.+')
   Net::FTP.open(FTP_HOST) do |ftp|
     begin
       ftp.login(FTP_USER, FTP_PASS)
-    rescue Exception => e
+    rescue => e
       puts
       puts "Error: #{e}"
       puts
@@ -97,7 +97,7 @@ def publish_apps(pkg_dir, pkg_regex = '.+\-.+\-.+\-.+')
 
   unless matched_dirs.empty?
     puts
-    puts "Publish all matched packages to git repos:"
+    puts 'Publish all matched packages to git repos:'
     puts
   end
 
@@ -109,7 +109,7 @@ def publish_apps(pkg_dir, pkg_regex = '.+\-.+\-.+\-.+')
   puts
 end
 
-# Extract app info from app's package/dir name.'
+# Extract app info from app's package/dir name.
 # There are some package name examples:
 #   demo-1.1.0-r16859-release.war, demo-1.1.0-r16859-release-sql.zip
 #   demo-sub-1.0.0-r16565-release.war, demo-sub-1.0.0-r16565-release-sql.zip
@@ -178,7 +178,7 @@ def ftp_publish(pkg_name, pkg_dir, app_info, ftp)
     begin
       ftp.storbinary("STOR #{pkg_short_name}", file, 8196)
       puts "  #{pkg_name} => #{remote_path}/#{pkg_short_name}"
-    rescue Exception => e
+    rescue => e
       puts "  Error: #{e}"
     end
   end
@@ -188,14 +188,6 @@ end
 def git_publish(pkg_name, pkg_dir, app_info)
   app_name = app_info[:app_name]
   app_fullname = app_info[:app_fullname]
-
-  app_deploy_repos = "#{app_name}-deploy"
-  app_deploy_dir = File.join(APP_PUBLISH_DIR, "#{app_deploy_repos}")
-  unless Dir.exist?(app_deploy_dir)
-    puts "  Ignore package #{pkg_name}: has no repos '#{app_deploy_repos}'"
-    return
-  end
-
   app_classifier = app_info[:app_classifier]
 
   unless CLASSIFIERS.include?(app_classifier)
@@ -205,6 +197,13 @@ def git_publish(pkg_name, pkg_dir, app_info)
 
   if app_classifier == "test"
     puts "  Ignore package #{pkg_name}: classifier is 'test'"
+    return
+  end
+
+  app_deploy_repos = "#{app_name}-deploy"
+  app_deploy_dir = File.join(APP_PUBLISH_DIR, "#{app_deploy_repos}")
+  unless Dir.exist?(app_deploy_dir)
+    puts "  Ignore package #{pkg_name}: has no repos '#{app_deploy_repos}'"
     return
   end
 
@@ -221,7 +220,7 @@ def git_publish(pkg_name, pkg_dir, app_info)
   `cp -rp #{pkg_full_path}/* .`
 
   # Delete files which are not used for deployment
-  Dir.glob("**/*.java").each { |x| File.delete(x) }
+  Dir.glob('**/*.java').each { |x| File.delete(x) }
 
   # Git commit and push
   `git add .`
@@ -237,12 +236,12 @@ def ftp_mkds(ftp, path)
   dirs = path.split('/')[1..-1]
   dirs.each_index do |i|
     begin
-      dir = '/' + dirs[0..i].join('/')
+      dir = "/#{dirs[0..i].join('/')}"
       ftp.chdir(dir)
-    rescue Exception
+    rescue
       begin
         ftp.mkdir(dir)
-      rescue Exception => e
+      rescue => e
         puts "  Error: #{e}"
         return false
       end
@@ -258,7 +257,7 @@ begin
   #puts "argv: #{ARGV}"
 
   if ARGV.empty?
-    puts "Error: you must supply a package dir"
+    puts 'Error: you must supply a package dir'
     puts
     puts option_parser.help
   else
