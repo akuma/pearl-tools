@@ -206,7 +206,7 @@ def git_publish(pkg_name, pkg_dir, app_info, branch_name)
     return
   end
 
-  app_deploy_repos0 = "#{app_name}-#{branch_name}-deploy"
+  app_deploy_repos0 = "#{app_name}-deploy-#{branch_name}"
   app_deploy_dir = File.join(APP_PUBLISH_DIR, "#{app_deploy_repos0}")
   unless Dir.exist?(app_deploy_dir)
     app_deploy_repos1 = "#{app_name}-deploy"
