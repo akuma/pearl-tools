@@ -39,6 +39,12 @@ Usage: #{EXECUTOR_NAME} [options] pkg_dir"
     options[:pkg_regex] = pkg_regex
   end
 
+  opts.on('-b',
+          '--branch branch_name',
+          'The branch name which to publish') do |branch_name|
+    options[:branch_name] = branch_name
+  end
+
   opts.on_tail('-h', '--help', 'Show this message') do
     puts opts
     exit 0
@@ -51,7 +57,7 @@ Usage: #{EXECUTOR_NAME} [options] pkg_dir"
 end
 
 # Publish matched app packages to the products repos.
-def publish_apps(pkg_dir, pkg_regex = '.+\-.+\-.+\-.+')
+def publish_apps(pkg_dir, branch_name = 'master', pkg_regex = '.+\-.+\-.+\-.+')
   unless Dir.exists?(pkg_dir)
     puts "Error: #{pkg_dir} is not a directory."
     exit
@@ -103,7 +109,7 @@ def publish_apps(pkg_dir, pkg_regex = '.+\-.+\-.+\-.+')
 
   matched_dirs.each do |pkg_name|
     app_info = extract_app_info(pkg_name)
-    git_publish(pkg_name, pkg_dir, app_info) if app_info
+    git_publish(pkg_name, pkg_dir, app_info, branch_name) if app_info
   end
 
   puts
@@ -185,7 +191,7 @@ def ftp_publish(pkg_name, pkg_dir, app_info, ftp)
 end
 
 # Publish app packages to git repos.
-def git_publish(pkg_name, pkg_dir, app_info)
+def git_publish(pkg_name, pkg_dir, app_info, branch_name)
   app_name = app_info[:app_name]
   app_fullname = app_info[:app_fullname]
   app_classifier = app_info[:app_classifier]
@@ -211,8 +217,8 @@ def git_publish(pkg_name, pkg_dir, app_info)
   puts "  Changing dir #{working_dir} -> #{app_deploy_dir}..."
   Dir.chdir(app_deploy_dir)
 
-  # Checkout git master
-  `git checkout master`
+  # Checkout git branch
+  `git checkout #{branch_name}`
 
   # Update package files of git repos
   pkg_full_path = File.join(working_dir, pkg_dir, pkg_name)
@@ -225,7 +231,7 @@ def git_publish(pkg_name, pkg_dir, app_info)
   # Git commit and push
   `git add .`
   `git commit -am 'Deployment publish commit.'`
-  `git push origin master`
+  `git push origin #{branch_name}`
 
   # Go back to working dir
   Dir.chdir(working_dir)
@@ -263,7 +269,8 @@ begin
   else
     pkg_dir = ARGV[0]
     pkg_regex = options[:pkg_regex]
-    pkg_regex ? publish_apps(pkg_dir, pkg_regex) : publish_apps(pkg_dir)
+    branch_name = options[:branch_name]
+    pkg_regex ? publish_apps(pkg_dir, branch_name, pkg_regex) : publish_apps(pkg_dir, branch_name)
   end
 rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
   puts "Error: #{e}"
