@@ -206,11 +206,15 @@ def git_publish(pkg_name, pkg_dir, app_info, branch_name)
     return
   end
 
-  app_deploy_repos = "#{app_name}-deploy"
-  app_deploy_dir = File.join(APP_PUBLISH_DIR, "#{app_deploy_repos}")
+  app_deploy_repos0 = "#{app_name}-#{branch_name}-deploy"
+  app_deploy_dir = File.join(APP_PUBLISH_DIR, "#{app_deploy_repos0}")
   unless Dir.exist?(app_deploy_dir)
-    puts "  Ignore package #{pkg_name}: has no repos '#{app_deploy_repos}'"
-    return
+    app_deploy_repos1 = "#{app_name}-deploy"
+    app_deploy_dir = File.join(APP_PUBLISH_DIR, "#{app_deploy_repos1}")
+    unless Dir.exist?(app_deploy_dir)
+      puts "  Ignore package #{pkg_name}: has no repos '#{app_deploy_repos0}' or '#{app_deploy_repos1}'"
+      return
+    end
   end
 
   working_dir = Dir.pwd
