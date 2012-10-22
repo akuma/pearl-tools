@@ -58,6 +58,8 @@ end
 
 # Publish matched app packages to the products repos.
 def publish_apps(pkg_dir, branch_name = 'master', pkg_regex = '.+\-.+\-.+\-.+')
+  branch_name = branch_name || 'master'
+  pkg_regex = regex || '.+\-.+\-.+\-.+'
   unless Dir.exists?(pkg_dir)
     puts "Error: #{pkg_dir} is not a directory."
     exit
@@ -272,9 +274,9 @@ begin
     puts option_parser.help
   else
     pkg_dir = ARGV[0]
-    pkg_regex = options[:pkg_regex]
     branch_name = options[:branch_name]
-    pkg_regex ? publish_apps(pkg_dir, branch_name, pkg_regex) : publish_apps(pkg_dir, branch_name)
+    pkg_regex = options[:pkg_regex]
+    publish_apps(pkg_dir, branch_name, pkg_regex)
   end
 rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
   puts "Error: #{e}"
