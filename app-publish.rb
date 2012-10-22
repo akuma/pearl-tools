@@ -59,7 +59,7 @@ end
 # Publish matched app packages to the products repos.
 def publish_apps(pkg_dir, branch_name = 'master', pkg_regex = '.+\-.+\-.+\-.+')
   branch_name = branch_name || 'master'
-  pkg_regex = regex || '.+\-.+\-.+\-.+'
+  pkg_regex = pkg_regex || '.+\-.+\-.+\-.+'
   unless Dir.exists?(pkg_dir)
     puts "Error: #{pkg_dir} is not a directory."
     exit
