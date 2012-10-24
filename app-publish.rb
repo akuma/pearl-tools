@@ -51,7 +51,7 @@ Usage: #{EXECUTOR_NAME} [options] pkg_dir"
   end
 
   opts.on_tail('-v', '--version', 'Show version') do
-    puts "app-publisher #{VERSION.join('.')}"
+    puts "#{EXECUTOR_NAME} #{VERSION.join('.')}"
     exit 0
   end
 end
