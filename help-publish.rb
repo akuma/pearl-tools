@@ -68,7 +68,7 @@ def publish(app_name, branch_name)
 
   # Delete files which are not used for deployment
   svn_dirs = File.join('**', '.svn')
-  Dir.glob(svn_dirs).each { |x| Dir.delete(x) }
+  Dir.glob(svn_dirs).each { |x| Dir.rmdir(x) }
 
   # Git commit and push
   `git add .`
