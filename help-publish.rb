@@ -3,6 +3,7 @@
 # A ruby script for publishing help html pages to deployment repos.
 
 require 'optparse'
+require 'fileutils'
 
 
 VERSION  = %w(0 0 1)
