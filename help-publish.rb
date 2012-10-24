@@ -67,7 +67,8 @@ def publish(app_name, branch_name)
   `cp -rp #{working_dir}/* .`
 
   # Delete files which are not used for deployment
-  #Dir.glob('**/*.java').each { |x| File.delete(x) }
+  svn_dirs = File.join('**', '.svn')
+  Dir.glob(svn_dirs).each { |x| Dir.delete(x) }
 
   # Git commit and push
   `git add .`
