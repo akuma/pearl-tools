@@ -63,12 +63,12 @@ def publish(app_name, branch_name)
   `git checkout #{branch_name}`
 
   # Update package files of git repos
-  puts "  Copying #{working_dir}/* -> #{app_deploy_dir}..."
-  `cp -rp #{working_dir}/* .`
+  puts "  Rsyncing #{working_dir}/* -> #{app_deploy_dir}..."
+  `rsync -aC #{working_dir}/* .`
 
   # Delete files which are not used for deployment
   svn_dirs = File.join('**', '.svn')
-  Dir.glob(svn_dirs).each { |x| Dir.rmdir(x) }
+  FileUtils.rm_r(Dir.glob(svn_dirs))
 
   # Git commit and push
   `git add .`
