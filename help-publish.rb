@@ -71,7 +71,7 @@ def publish(app_name, branch_name)
 
   # Git commit and push
   `git add .`
-  `git commit -am 'Deployment publish commit.'`
+  `git commit -m 'Deployment publish commit.'`
   `git push origin #{branch_name}`
 
   # Go back to working dir
