@@ -64,16 +64,12 @@ def publish(app_name, branch_name)
   `git checkout #{branch_name}`
 
   # Update package files of git repos
-  puts "  Rsyncing #{working_dir}/* -> #{app_deploy_dir}..."
-  `rsync -aC #{working_dir}/* .`
-
-  # Delete files which are not used for deployment
-  svn_dirs = File.join('**', '.svn')
-  FileUtils.rm_r(Dir.glob(svn_dirs))
+  puts "  Rsyncing #{working_dir}/ -> #{app_deploy_dir}..."
+  `rsync -vazC --progress --exclude=.* --delete #{working_dir}/ .`
 
   # Git commit and push
   `git add .`
-  `git commit -m 'Deployment publish commit.'`
+  `git commit -am 'Deployment publish commit.'`
   `git push origin #{branch_name}`
 
   # Go back to working dir

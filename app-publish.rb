@@ -228,15 +228,12 @@ def git_publish(pkg_name, pkg_dir, app_info, branch_name)
 
   # Update package files of git repos
   pkg_full_path = File.join(working_dir, pkg_dir, pkg_name)
-  puts "  Copying #{pkg_full_path}/* -> #{app_deploy_dir}..."
-  `cp -rp #{pkg_full_path}/* .`
-
-  # Delete files which are not used for deployment
-  Dir.glob('**/*.java').each { |x| File.delete(x) }
+  puts "  Rsyncing #{pkg_full_path}/ -> #{app_deploy_dir}..."
+  `rsync -vazC --progress --exclude=.* --exclude=*.java --delete #{pkg_full_path}/ .`
 
   # Git commit and push
   `git add .`
-  `git commit -m 'Deployment publish commit.'`
+  `git commit -am 'Deployment publish commit.'`
   `git push origin #{branch_name}`
 
   # Go back to working dir
