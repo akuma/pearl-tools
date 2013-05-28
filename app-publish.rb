@@ -6,7 +6,7 @@ require 'net/ftp'
 require 'optparse'
 
 
-VERSION  = %w(0 0 1)
+VERSION  = %w(0 0 2)
 
 # ftp params
 FTP_HOST = 'ftp.gm.com'
