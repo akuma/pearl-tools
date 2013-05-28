@@ -14,7 +14,7 @@ FTP_USER = 'anonymous'
 FTP_PASS = ''
 FTP_DIR = '/products'
 
-# App publish dir
+# Default app publish dir
 APP_PUBLISH_DIR = '/opt/scm/app-publish'
 #APP_PUBLISH_DIR = '/Users/akuma/Programs/misc/app-test/git-publish'
 
@@ -28,7 +28,7 @@ EXECUTOR_NAME = File.basename($PROGRAM_NAME)
 options = {}
 option_parser = OptionParser.new do |opts|
   opts.banner = "Publish app packages to deployment repos (ftp, git, etc).
-Usage: #{EXECUTOR_NAME} [options] pkg_dir"
+Usage: #{EXECUTOR_NAME} [options] package_dir [publish_dir]"
 
   opts.separator ''
   opts.separator 'Common options:'
@@ -57,12 +57,19 @@ Usage: #{EXECUTOR_NAME} [options] pkg_dir"
 end
 
 # Publish matched app packages to the products repos.
-def publish_apps(pkg_dir, branch_name = 'master', pkg_regex = '.+\-.+\-.+\-.+')
+def publish_apps(pkg_dir, publish_dir=APP_PUBLISH_DIR, branch_name = 'master', pkg_regex = '.+\-.+\-.+\-.+')
+  publish_dir = publish_dir || APP_PUBLISH_DIR
   branch_name = branch_name || 'master'
   pkg_regex = pkg_regex || '.+\-.+\-.+\-.+'
+
   unless Dir.exists?(pkg_dir)
     puts "Error: #{pkg_dir} is not a directory."
-    exit
+    exit 0
+  end
+
+  unless Dir.exists?(publish_dir)
+    puts "Error: #{publish_dir} is not a directory."
+    exit 0
   end
 
   matched_pkgs = []
@@ -78,7 +85,7 @@ def publish_apps(pkg_dir, branch_name = 'master', pkg_regex = '.+\-.+\-.+\-.+')
 
   if matched_pkgs.empty? and matched_dirs.empty?
     puts "Info: Can't find any app packages with regex '#{app_regex}'."
-    exit
+    exit 0
   end
 
   Net::FTP.open(FTP_HOST) do |ftp|
@@ -111,7 +118,7 @@ def publish_apps(pkg_dir, branch_name = 'master', pkg_regex = '.+\-.+\-.+\-.+')
 
   matched_dirs.each do |pkg_name|
     app_info = extract_app_info(pkg_name)
-    git_publish(pkg_name, pkg_dir, app_info, branch_name) if app_info
+    git_publish(pkg_name, pkg_dir, publish_dir, app_info, branch_name) if app_info
   end
 
   puts
@@ -193,7 +200,7 @@ def ftp_publish(pkg_name, pkg_dir, app_info, ftp)
 end
 
 # Publish app packages to git repos.
-def git_publish(pkg_name, pkg_dir, app_info, branch_name)
+def git_publish(pkg_name, pkg_dir, publish_dir, app_info, branch_name)
   app_name = app_info[:app_name]
   app_fullname = app_info[:app_fullname]
   app_classifier = app_info[:app_classifier]
@@ -209,10 +216,10 @@ def git_publish(pkg_name, pkg_dir, app_info, branch_name)
   end
 
   app_deploy_repos0 = "#{app_name}-deploy-#{branch_name}"
-  app_deploy_dir = File.join(APP_PUBLISH_DIR, "#{app_deploy_repos0}")
+  app_deploy_dir = File.join(publish_dir, "#{app_deploy_repos0}")
   unless Dir.exist?(app_deploy_dir)
     app_deploy_repos1 = "#{app_name}-deploy"
-    app_deploy_dir = File.join(APP_PUBLISH_DIR, "#{app_deploy_repos1}")
+    app_deploy_dir = File.join(publish_dir, "#{app_deploy_repos1}")
     unless Dir.exist?(app_deploy_dir)
       puts "  Ignore package #{pkg_name}: has no repos '#{app_deploy_repos0}' or '#{app_deploy_repos1}'"
       return
@@ -233,7 +240,7 @@ def git_publish(pkg_name, pkg_dir, app_info, branch_name)
 
   # Git commit and push
   `git add .`
-  `git commit -am 'Deployment publish commit.'`
+  `git commit -am 'Publish #{pkg_name}.'`
   `git push origin #{branch_name}`
 
   # Go back to working dir
@@ -266,17 +273,19 @@ begin
   #puts "argv: #{ARGV}"
 
   if ARGV.empty?
-    puts 'Error: you must supply a package dir'
+    puts 'Error: you must supply the package dir'
     puts
     puts option_parser.help
   else
     pkg_dir = ARGV[0]
+    publish_dir = ARGV[1]
     branch_name = options[:branch_name]
     pkg_regex = options[:pkg_regex]
-    publish_apps(pkg_dir, branch_name, pkg_regex)
+    publish_apps(pkg_dir, publish_dir, branch_name, pkg_regex)
   end
 rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
   puts "Error: #{e}"
   puts
   puts option_parser.help
 end
+
