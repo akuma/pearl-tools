@@ -30,7 +30,7 @@ print_footer() {
 
 # 更新静态资源
 update_assets() {
-    print_title "开始更新 assets ..."
+    print_title "开始更新 clearn-assets ..."
 
     app_repos="$REPOS_ASSETS $REPOS_STATIC"
     for app in $app_repos
@@ -48,23 +48,15 @@ update_assets() {
     cd $REPOS_STATIC
     grunt publish
 
-    print_footer "assets 更新完毕"
+    print_footer "clearn-assets 更新完毕"
 }
 
 # 更新运营平台
 update_support() {
-    print_title "开始更新 support ..."
-
+    print_title "开始更新 web-03 ..."
     app_repos="$REPOS_PAGES $REPOS_SUPPORT"
-    for app in $app_repos
-    do
-        cd $app
-        git co .
-        git pull
-        echo
-    done
-
-    print_footer "support 更新完毕"
+    ssh -t dev@web-03 "$(typeset -f); update_web_apps $app_repos"
+    print_footer "web-03 更新完毕"
 }
 
 # 更新 web 服务器程序主函数
@@ -113,28 +105,8 @@ update() {
     esac
 }
 
-start_support() {
-    PID=( `jps -v |grep $TOMCAT_SUPPORT_KEY |awk '{print $1}'` )
-    if [ "$PID" = "" ] ; then
-        rm -rf work/*
-        cd $TOMCAT_SUPPORT_HOME
-        sh bin/startup.sh
-        echo "$TOMCAT_SUPPORT_KEY startup."
-    else
-        echo "$TOMCAT_SUPPORT_KEY is already running."
-    fi
-}
-
-start_web() {
-    ssh -t dev@web-$1 "sudo systemctl start tomcat"
-}
-
 start() {
     case "$1" in
-        "support" )
-            start_support
-        ;;
-
         "web01" )
             start_web "01"
         ;;
@@ -143,44 +115,21 @@ start() {
             start_web "02"
         ;;
 
+        "support" )
+            start_web "03"
+        ;;
+
         * )
             echo "Unknow start target, please choose again: $0 start [target]"
     esac
 }
 
-stop_support()
-{
-    PID=( `jps -v |grep $TOMCAT_SUPPORT_KEY |awk '{print $1}'` )
-    if [ "$PID" = "" ] ; then
-        echo "$TOMCAT_SUPPORT_KEY is not running."
-        return
-    else
-        cd $TOMCAT_SUPPORT_HOME
-        sh bin/shutdown.sh
-        echo "Waiting for $TOMCAT_SUPPORT_KEY shutdown..."
-        sleep 5
-    fi
-
-    PID=( `jps -v |grep $TOMCAT_SUPPORT_KEY |awk '{print $1}'` )
-    if [ "$PID" = "" ] ; then
-        echo "$TOMCAT_SUPPORT_KEY shutdown normally."
-    else
-        echo "Kill -9 tomcat[$PID]..."
-        kill -9 $PID
-        echo "$TOMCAT_SUPPORT_KEY is killed."
-    fi
-}
-
-stop_web() {
-    ssh -t dev@web-$1 "sudo systemctl stop tomcat"
+start_web() {
+    ssh -t dev@web-$1 "sudo systemctl start tomcat"
 }
 
 stop() {
     case "$1" in
-        "support" )
-            stop_support
-        ;;
-
         "web01" )
             stop_web "01"
         ;;
@@ -189,27 +138,21 @@ stop() {
             stop_web "02"
         ;;
 
+        "support" )
+            stop_web "03"
+        ;;
+
         * )
             echo "Unknow stop target, please choose again: $0 stop [target]"
     esac
 }
 
-restart_support() {
-    stop_support
-    sleep 1
-    start_support
-}
-
-restart_web() {
-    ssh -t dev@web-$1 "sudo systemctl restart tomcat"
+stop_web() {
+    ssh -t dev@web-$1 "sudo systemctl stop tomcat"
 }
 
 restart() {
     case "$1" in
-        "support" )
-            restart_support
-        ;;
-
         "web01" )
             restart_web "01"
         ;;
@@ -218,21 +161,21 @@ restart() {
             restart_web "02"
         ;;
 
+        "support" )
+            restart_web "03"
+        ;;
+
         * )
             echo "Unknow restart target, please choose again: $0 restart [target]"
     esac
 }
 
-status_web() {
-    ssh -t dev@web-$1 "sudo systemctl status tomcat -l"
+restart_web() {
+    ssh -t dev@web-$1 "sudo systemctl restart tomcat"
 }
 
 status() {
     case "$1" in
-        "support" )
-            jps -v |grep $TOMCAT_SUPPORT_HOME
-        ;;
-
         "web01" )
             status_web "01"
         ;;
@@ -241,21 +184,21 @@ status() {
             status_web "02"
         ;;
 
+        "support" )
+            status_web "03"
+        ;;
+
         * )
            echo "Unknow status target, please choose again: $0 status [target]"
     esac
 }
 
-log_web() {
-    ssh -t dev@web-$1 "tail -n 100 -f $TOMCAT_WEB_HOME/$CATALINA_LOG"
+status_web() {
+    ssh -t dev@web-$1 "sudo systemctl status tomcat -l"
 }
 
 log() {
     case "$1" in
-        "support" )
-            tail -n 100 -f $TOMCAT_SUPPORT_HOME/$CATALINA_LOG
-        ;;
-
         "web01" )
             log_web "01"
         ;;
@@ -264,9 +207,17 @@ log() {
             log_web "02"
         ;;
 
+        "support" )
+            log_web "03"
+        ;;
+
         * )
             echo "Unknow log target, please choose again: $0 log [target]"
     esac
+}
+
+log_web() {
+    ssh -t dev@web-$1 "tail -n 100 -f $TOMCAT_WEB_HOME/$CATALINA_LOG"
 }
 
 help() {
