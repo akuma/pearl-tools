@@ -1,21 +1,18 @@
-#!/bin/sh
 # GAM is a Guomi App Manager tool.
 
-
-REPOS_ROOT=/opt/app-repos
-REPOS_ASSETS=$REPOS_ROOT/clearn-assets-deploy
-REPOS_STATIC=$REPOS_ROOT/clearn-static-deploy
-REPOS_PAGES=$REPOS_ROOT/clearn-pages-deploy
-REPOS_STUDENT=$REPOS_ROOT/clearn-student-deploy
-REPOS_TEACHER=$REPOS_ROOT/clearn-teacher-deploy
-REPOS_ASK=$REPOS_ROOT/clearn-ask-deploy
-REPOS_SUPPORT=$REPOS_ROOT/clearn-support-deploy
+REPOS_ROOT=/opt/app-deploy
+REPOS_ASSETS=$REPOS_ROOT/clearn-assets
+REPOS_ASSETS2=$REPOS_ROOT/clearn-assets2
+REPOS_STATIC=$REPOS_ROOT/clearn-static
+REPOS_PAGES=$REPOS_ROOT/clearn-pages
+REPOS_STUDENT=$REPOS_ROOT/clearn-student
+REPOS_TEACHER=$REPOS_ROOT/clearn-teacher
+REPOS_SUPPORT=$REPOS_ROOT/clearn-support
 
 TOMCAT_SUPPORT_KEY=tomcat-support
 TOMCAT_SUPPORT_HOME=/opt/tomcat/$TOMCAT_SUPPORT_KEY
 TOMCAT_WEB_HOME=/opt/tomcat7
 CATALINA_LOG=logs/catalina.out
-
 
 print_title() {
     echo
@@ -36,19 +33,29 @@ update_assets() {
     for app in $app_repos
     do
         cd $app
-        git co .
+        git checkout .
         git pull
     done
 
     cd $REPOS_ASSETS
-    #grunt clean cssmin uglify concat copy
     grunt publish
-
 
     cd $REPOS_STATIC
     grunt publish
 
     print_footer "clearn-assets 更新完毕"
+}
+
+# 更新静态资源 v2
+update_assets2() {
+    print_title "开始更新 clearn-assets2 ..."
+
+    cd $REPOS_ASSETS2
+    git checkout .
+    git pull
+    gulp dist
+
+    print_footer "clearn-assets2 更新完毕"
 }
 
 # 更新运营平台
@@ -62,7 +69,7 @@ update_support() {
 # 更新 web 服务器程序主函数
 update_web() {
     print_title "开始更新 web-$1 ..."
-    app_repos="$REPOS_PAGES $REPOS_STUDENT $REPOS_TEACHER $REPOS_ASK"
+    app_repos="$REPOS_PAGES $REPOS_STUDENT $REPOS_TEACHER"
     ssh -t dev@web-$1 "$(typeset -f); update_web_apps $app_repos"
     print_footer "web-$1 更新完毕"
 }
@@ -75,7 +82,7 @@ update_web_apps() {
         echo "---------------------------------------------"
         echo "开始更新 ${app:15} ..."
         cd $app
-        git co .
+        git checkout .
         git pull
         echo "${app:15} 更新完毕"
         echo
@@ -86,6 +93,11 @@ update() {
     case "$1" in
         "assets" )
             update_assets
+            update_assets2
+        ;;
+
+        "assets2" )
+            update_assets2
         ;;
 
         "support" )
@@ -126,6 +138,7 @@ start() {
 
 start_web() {
     ssh -t dev@web-$1 "sudo systemctl start tomcat"
+    echo "web-$1 is starting..."
 }
 
 stop() {
@@ -149,6 +162,7 @@ stop() {
 
 stop_web() {
     ssh -t dev@web-$1 "sudo systemctl stop tomcat"
+    echo "web-$1 is stopping..."
 }
 
 restart() {
@@ -172,6 +186,7 @@ restart() {
 
 restart_web() {
     ssh -t dev@web-$1 "sudo systemctl restart tomcat"
+    echo "web-$1 is restarting..."
 }
 
 status() {
@@ -223,12 +238,13 @@ log_web() {
 help() {
     echo "Usage: $0 [OPTION] [TARGET]"
     echo
-    echo "  update  [assets|support|web**]  update app files"
-    echo "  start   [support|web**]         start tomcat"
-    echo "  stop    [support|web**]         stop tomcat"
-    echo "  restart [support|web**]         restart tomcat"
-    echo "  status  [support|web**]         show started tomcat info"
-    echo "  log     [support|web**]         show last tomcat logs"
+    echo "  upgrade [support|web**]         update app and restart app"
+    echo "  update  [assets|support|web**]  update app"
+    echo "  start   [support|web**]         start app"
+    echo "  stop    [support|web**]         stop app"
+    echo "  restart [support|web**]         restart app"
+    echo "  status  [support|web**]         show started app info"
+    echo "  log     [support|web**]         show last app logs"
     echo "  help                            display this help and exit"
     echo
 }
@@ -236,6 +252,9 @@ help() {
 RETVAL=0
 
 case "$1" in
+    upgrade )
+        update assets && update $2 && restart $2 && log $2
+    ;;
     update )
         update $2
     ;;
