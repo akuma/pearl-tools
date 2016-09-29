@@ -1,3 +1,4 @@
+#!/bin/sh
 # GAM is a Guomi App Manager tool.
 
 REPOS_ROOT=/opt/app-deploy
@@ -8,6 +9,7 @@ REPOS_PAGES=$REPOS_ROOT/clearn-pages
 REPOS_STUDENT=$REPOS_ROOT/clearn-student
 REPOS_TEACHER=$REPOS_ROOT/clearn-teacher
 REPOS_SUPPORT=$REPOS_ROOT/clearn-support
+REPOS_ASK=$REPOS_ROOT/clearn-ask
 
 TOMCAT_SUPPORT_KEY=tomcat-support
 TOMCAT_SUPPORT_HOME=/opt/tomcat/$TOMCAT_SUPPORT_KEY
@@ -62,7 +64,7 @@ update_assets2() {
 update_support() {
     print_title "开始更新 web-03 ..."
     app_repos="$REPOS_PAGES $REPOS_SUPPORT"
-    ssh -t dev@web-03 "$(typeset -f); update_web_apps $app_repos"
+    ssh -t dev@web-03 "$( typeset -f ); update_web_apps $app_repos"
     print_footer "web-03 更新完毕"
 }
 
@@ -70,13 +72,14 @@ update_support() {
 update_web() {
     print_title "开始更新 web-$1 ..."
     app_repos="$REPOS_PAGES $REPOS_STUDENT $REPOS_TEACHER"
-    ssh -t dev@web-$1 "$(typeset -f); update_web_apps $app_repos"
+    ssh -t dev@web-$1 "$( typeset -f ); update_web_apps $app_repos"
     print_footer "web-$1 更新完毕"
 }
 
 # 更新 web 服务器上的应用程序
 update_web_apps() {
-    app_repos=($*)
+    #app_repos=$*
+    app_repos=( $* )
     for app in $app_repos
     do
         echo "---------------------------------------------"
@@ -252,9 +255,6 @@ help() {
 RETVAL=0
 
 case "$1" in
-    upgrade )
-        update assets && update $2 && restart $2 && log $2
-    ;;
     update )
         update $2
     ;;
@@ -272,6 +272,9 @@ case "$1" in
     ;;
     log )
         log $2
+    ;;
+    upgrade )
+        update assets && update $2 && restart $2 && log $2
     ;;
     * )
       help
