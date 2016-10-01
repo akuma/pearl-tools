@@ -35,17 +35,17 @@ url_encode() {
 
 random_char() {
   local chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-  local i=$(( $RANDOM % ${#chars} ))
+  local i=$(($RANDOM % ${#chars}))
   echo -n "${chars:$i:1}"
 }
 
 random_chars() {
-  local len="$1"
-  for i in $(seq 1 $len); do echo -n $(random_char); done
+  local len=$1
+  for i in $(seq 1 $len); do echo -n "$(random_char)"; done
 }
 
 git_pull_need() {
-  if [ git_pull_check = 'Need to pull' ]; then
+  if [ "$(git_pull_check)" = 'Need to pull' ]; then
     echo true
   else
     echo false
@@ -55,16 +55,18 @@ git_pull_need() {
 git_pull_check() {
   git remote update
 
-  local UPSTREAM="${1:-'@{u}'}"
-  local LOCAL=$(git rev-parse @)
-  local REMOTE=$(git rev-parse "$UPSTREAM")
-  local BASE=$(git merge-base @ "$UPSTREAM")
+  local upstream="\${1:-'@{u}'}"
+  local locale, remote, base
 
-  if [ $LOCAL = $REMOTE ]; then
+  locale=$(git rev-parse @)
+  remote=$(git rev-parse "$upstream")
+  base=$(git merge-base @ "$upstream")
+
+  if [ $locale = $remote ]; then
     echo "Up-to-date"
-  elif [ $LOCAL = $BASE ]; then
+  elif [ $locale = $base ]; then
     echo "Need to pull"
-  elif [ $REMOTE = $BASE ]; then
+  elif [ $remote = $base ]; then
     echo "Need to push"
   else
     echo "Diverged"
