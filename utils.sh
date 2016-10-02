@@ -55,12 +55,12 @@ git_pull_need() {
 git_pull_check() {
   git remote update
 
-  local upstream="\${1:-'@{u}'}"
-  local locale, remote, base
+  local upstream="@{u}"
+  local locale remote base
 
   locale=$(git rev-parse @)
-  remote=$(git rev-parse "$upstream")
-  base=$(git merge-base @ "$upstream")
+  remote=$(git rev-parse $upstream)
+  base=$(git merge-base @ $upstream)
 
   if [ $locale = $remote ]; then
     echo "Up-to-date"
