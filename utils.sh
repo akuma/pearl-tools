@@ -45,7 +45,7 @@ random_chars() {
 }
 
 git_pull_need() {
-  if [ "$(git_pull_check)" = 'Need to pull' ]; then
+  if [ "$(git_pull_check)" = "Need to pull" ]; then
     echo true
   else
     echo false
@@ -53,14 +53,14 @@ git_pull_need() {
 }
 
 git_pull_check() {
-  git remote update
+  git remote update > /dev/null
 
   local upstream="@{u}"
   local locale remote base
 
   locale=$(git rev-parse @)
-  remote=$(git rev-parse $upstream)
-  base=$(git merge-base @ $upstream)
+  remote=$(git rev-parse "$upstream")
+  base=$(git merge-base @ "$upstream")
 
   if [ $locale = $remote ]; then
     echo "Up-to-date"
