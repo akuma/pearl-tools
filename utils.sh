@@ -53,7 +53,7 @@ git_pull_need() {
 }
 
 git_pull_check() {
-  git remote update > /dev/null
+  git remote update > /dev/null 2>&1
 
   local upstream="@{u}"
   local locale remote base
