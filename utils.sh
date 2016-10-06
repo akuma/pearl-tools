@@ -58,9 +58,9 @@ git_pull_check() {
   local upstream="@{u}"
   local locale remote base
 
-  locale=$(git rev-parse @)
+  locale=$(git rev-parse HEAD)
   remote=$(git rev-parse "$upstream")
-  base=$(git merge-base @ "$upstream")
+  base=$(git merge-base HEAD "$upstream")
 
   if [ $locale = $remote ]; then
     echo "Up-to-date"
