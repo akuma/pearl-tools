@@ -2,19 +2,19 @@
 # A shell script for managing AliYun SLB.
 
 # Check bash version
-if [ ${BASH_VERSINFO[0]} -lt 4 ]; then
+if [[ ${BASH_VERSINFO[0]} -lt 4 ]]; then
   echo "Sorry, you need at least bash-4.0 to run this script."
   exit 1
 fi
 
 # Check aliyun access key id
-if [ -z $ALIYUN_ACCESS_KEY_ID ]; then
+if [[ -z $ALIYUN_ACCESS_KEY_ID ]]; then
   echo "Please set environment variable 'ALIYUN_ACCESS_KEY_ID' (AliYun Access Key ID)"
   exit 1
 fi
 
 # Check aliyun access key secret
-if [ -z $ALIYUN_ACCESS_KEY_SECRET ]; then
+if [[ -z $ALIYUN_ACCESS_KEY_SECRET ]]; then
   echo "Please set environment variable 'ALIYUN_ACCESS_KEY_SECRET' (AliYun Access Key Secret)"
   exit 1
 fi

@@ -45,7 +45,7 @@ random_chars() {
 }
 
 git_pull_need() {
-  if [ "$(git_pull_check)" = "Need to pull" ]; then
+  if [[ "$(git_pull_check)" = "Need to pull" ]]; then
     echo true
   else
     echo false
@@ -62,11 +62,11 @@ git_pull_check() {
   remote=$(git rev-parse "$upstream")
   base=$(git merge-base HEAD "$upstream")
 
-  if [ $locale = $remote ]; then
+  if [[ $locale = "$remote" ]]; then
     echo "Up-to-date"
-  elif [ $locale = $base ]; then
+  elif [[ $locale = "$base" ]]; then
     echo "Need to pull"
-  elif [ $remote = $base ]; then
+  elif [[ $remote = "$base" ]]; then
     echo "Need to push"
   else
     echo "Diverged"

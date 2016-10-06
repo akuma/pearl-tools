@@ -37,19 +37,19 @@ update_assets() {
   for app in "${app_repos[@]}"
   do
     cd "$app" || return
-    if [ "$(git_pull_need)" = true ]; then
+    if [[ "$(git_pull_need)" = true ]]; then
       git checkout .
       git pull
     fi
   done
 
   cd "$REPOS_ASSETS" || return
-  if [ "$(git_pull_need)" = true ]; then
+  if [[ "$(git_pull_need)" = true ]]; then
     grunt publish
   fi
 
   cd "$REPOS_STATIC" || return
-  if [ "$(git_pull_need)" = true ]; then
+  if [[ "$(git_pull_need)" = true ]]; then
     grunt publish
   fi
 
@@ -61,7 +61,7 @@ update_assets2() {
   print_title "开始更新 clearn-assets2 ..."
 
   cd "$REPOS_ASSETS2" || return
-  if [ "$(git_pull_need)" = true ]; then
+  if [[ "$(git_pull_need)" = true ]]; then
     git checkout .
     git pull
     gulp dist
@@ -89,14 +89,14 @@ update_web() {
 # 更新 web 服务器上的应用程序
 update_web_apps() {
   app_repos=( "$@" )
-  echo "${app_repos[@]}"
+
   for app in "${app_repos[@]}"
   do
     echo "---------------------------------------------"
     echo "开始更新 ${app:15} ..."
     cd "$app" || return
 
-    if [ "$(git_pull_need)" = true ]; then
+    if [[ "$(git_pull_need)" = true ]]; then
       git checkout .
       git pull
     fi
