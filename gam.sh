@@ -13,10 +13,10 @@ REPOS_SUPPORT=$REPOS_ROOT/clearn-support
 TOMCAT_WEB_HOME=/opt/tomcat7
 CATALINA_LOG=logs/catalina.out
 
-# Source slb functions
+# Source aliyun slb functions
 current_dir=$(dirname "$0")
-# shellcheck source=src/slb.sh
-. "$current_dir/slb.sh"
+# shellcheck source=src/aliyun-slb.sh
+. "$current_dir/aliyun-slb.sh"
 
 print_title() {
   echo
