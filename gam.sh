@@ -174,13 +174,13 @@ stop_web() {
 restart() {
   case "$1" in
     "web01" )
-      up_server "02"
-      down_server "01"
+      up "web02"
+      down "web01"
       restart_web "01"
       ;;
     "web02" )
-      up_server "01"
-      down_server "02"
+      up "web01"
+      down "web02"
       restart_web "02"
       ;;
     "support" )
