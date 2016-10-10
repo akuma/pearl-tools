@@ -40,18 +40,11 @@ update_assets() {
     if [[ "$(git_pull_need)" = true ]]; then
       git checkout .
       git pull
+      if [[ "$app" = "$REPOS_ASSETS" || "$app" = "$REPOS_STATIC" ]]; then
+        grunt publish
+      fi
     fi
   done
-
-  cd "$REPOS_ASSETS" || return
-  if [[ "$(git_pull_need)" = true ]]; then
-    grunt publish
-  fi
-
-  cd "$REPOS_STATIC" || return
-  if [[ "$(git_pull_need)" = true ]]; then
-    grunt publish
-  fi
 
   print_footer "clearn-assets 更新完毕"
 }
